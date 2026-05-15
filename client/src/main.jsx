@@ -17,7 +17,7 @@ const QUIZ_MAX_POINTS = [7, 8, 7, 7, 7, 7, 7, 7, 7, 7];
 const MIDTERM_MAX_POINTS = 85;
 const TARGET_GRADES = Array.from({ length: 19 }, (_, index) => (index + 2) / 2);
 
-const initialQuizScores = [5, 0, 5, 3, 1, 4, 1, 3, 0, 0];
+const initialQuizScores = Array(QUIZ_MAX_POINTS.length).fill("");
 
 function clamp(value, min, max) {
   const numericValue = Number(value);
@@ -37,6 +37,26 @@ function formatGrade(value) {
 
 function formatPercent(value) {
   return `${Math.round(value * 100)}%`;
+}
+
+function gradeStatus(grade) {
+  if (grade <= 3.5) {
+    return "fail";
+  }
+
+  if (grade < 6) {
+    return "retake";
+  }
+
+  return "pass";
+}
+
+function statusLabel(status) {
+  return {
+    fail: "Fail",
+    retake: "Retake",
+    pass: "Pass",
+  }[status];
 }
 
 function component(name, points, maxPoints) {
@@ -118,7 +138,7 @@ function finalPercentForTarget({ quizScores, midtermPoints, targetGrade }) {
   return null;
 }
 
-function NumberCell({ label, value, max, onChange }) {
+function NumberCell({ label, value, max, onChange, showMax = true }) {
   return (
     <label className="number-cell">
       <span>{label}</span>
@@ -130,7 +150,7 @@ function NumberCell({ label, value, max, onChange }) {
         value={value}
         onChange={(event) => onChange(event.target.value)}
       />
-      <small>/ {max}</small>
+      {showMax ? <small>/ {max}</small> : null}
     </label>
   );
 }
@@ -171,10 +191,21 @@ function WeightText({ weights }) {
   );
 }
 
+function GradeWithStatus({ grade, emphasis = false }) {
+  const status = gradeStatus(grade);
+
+  return (
+    <span className={`grade-status grade-status-${status}${emphasis ? " strong" : ""}`}>
+      <span>{formatGrade(grade)}</span>
+      <span className="status-pill">{statusLabel(status)}</span>
+    </span>
+  );
+}
+
 function App() {
   const [quizScores, setQuizScores] = useState(initialQuizScores);
-  const [midtermPoints, setMidtermPoints] = useState(57);
-  const [finalPoints, setFinalPoints] = useState(70);
+  const [midtermPoints, setMidtermPoints] = useState("");
+  const [finalPoints, setFinalPoints] = useState("");
   const [finalMaxPoints, setFinalMaxPoints] = useState(100);
   const [apiStatistics, setApiStatistics] = useState(null);
   const [apiActualResult, setApiActualResult] = useState(null);
@@ -410,8 +441,12 @@ function App() {
                 {visibleScenarios.map((scenario) => (
                   <tr key={scenario.finalPercent}>
                     <td>{scenario.finalPercent}%</td>
-                    <td>{formatGrade(scenario.normalGrade)}</td>
-                    <td className="strong">{formatGrade(scenario.flexiGrade)}</td>
+                    <td>
+                      <GradeWithStatus grade={scenario.normalGrade} />
+                    </td>
+                    <td>
+                      <GradeWithStatus grade={scenario.flexiGrade} emphasis />
+                    </td>
                     <td>
                       <WeightText weights={scenario.flexiWeights} />
                     </td>
@@ -431,16 +466,26 @@ function App() {
             </div>
           </div>
           <div className="target-list">
-            {visibleTargets.map((target) => (
-              <div className="target-row" key={target.targetGrade}>
-                <span>{target.targetGrade.toFixed(1)}/10</span>
-                <strong>
-                  {target.finalPercent === null && target.requiredFinalPercent == null
-                    ? "Not reachable"
-                    : `${roundHalfUp(target.finalPercent ?? target.requiredFinalPercent)}%`}
-                </strong>
-              </div>
-            ))}
+            {visibleTargets.map((target) => {
+              const requiredPercent = target.finalPercent ?? target.requiredFinalPercent;
+              const isReachable = requiredPercent != null;
+              const status = gradeStatus(target.targetGrade);
+
+              return (
+                <div
+                  className={`target-row ${
+                    isReachable ? `target-row-${status}` : "target-row-unreachable"
+                  }`}
+                  key={target.targetGrade}
+                >
+                  <span>{target.targetGrade.toFixed(1)}/10</span>
+                  <strong className={isReachable ? "" : "not-reachable"}>
+                    {isReachable ? `${roundHalfUp(requiredPercent)}%` : "Not reachable"}
+                  </strong>
+                  <small>{statusLabel(status)}</small>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
@@ -461,18 +506,22 @@ function App() {
               value={finalPoints}
               max={finalMaxPoints}
               onChange={setFinalPoints}
+              showMax={false}
             />
             <NumberCell
               label="Final denominator"
               value={finalMaxPoints}
               max={200}
               onChange={setFinalMaxPoints}
+              showMax={false}
             />
           </div>
 
           <div className="actual-result">
             <span>Actual Flexi Grade</span>
-            <strong>{formatGrade(visibleActualResult.flexiGrade)}</strong>
+            <strong>
+              <GradeWithStatus grade={visibleActualResult.flexiGrade} emphasis />
+            </strong>
             <small>
               Normal: {formatGrade(visibleActualResult.normalGrade)} · weights{" "}
               <WeightText weights={visibleActualResult.flexiWeights} />
