@@ -2,6 +2,6 @@ services:
   grade-simulator:
     build: .
     ports:
-      - "4174:4174"
+      - "${HOST_PORT:-4174}:4174"
     environment:
       PORT: 4174

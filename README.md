@@ -37,6 +37,14 @@ To stop it:
 docker compose down
 ```
 
+If port `4174` is already busy, choose another host port:
+
+```bash
+HOST_PORT=4180 docker compose up --build
+```
+
+Then open `http://localhost:4180`.
+
 ## Build
 
 ```bash
