@@ -19,6 +19,24 @@ npm run dev
 
 The React app runs through Vite, and the Express API runs on port `4174`.
 
+## Run With Docker
+
+```bash
+docker compose up --build
+```
+
+Then open:
+
+```text
+http://localhost:4174
+```
+
+To stop it:
+
+```bash
+docker compose down
+```
+
 ## Build
 
 ```bash
