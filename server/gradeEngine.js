@@ -4,7 +4,7 @@ export const DEFAULT_WEIGHTS = {
   midterm: 0.3,
   final: 0.6,
 };
-export const QUIZ_MAX_POINTS = [7, 8, 7, 7, 7, 7, 7, 7, 7, 7];
+export const QUIZ_MAX_POINTS = [7, 8, 7, 7, 7, 7, 7, 7, 9, 7];
 export const MIDTERM_RESCALED_MAX_POINTS = 85;
 export const MIDTERM_REPORTED_MAX_POINTS = 90;
 export const MIDTERM_ACTUAL_MAX_POINTS = 94;

@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import "./styles.css";
 
-const QUIZ_MAX_POINTS = [7, 8, 7, 7, 7, 7, 7, 7, 7, 7];
+const QUIZ_MAX_POINTS = [7, 8, 7, 7, 7, 7, 7, 7, 9, 7];
 const MIDTERM_MAX_POINTS = 85;
 const TARGET_GRADES = Array.from({ length: 19 }, (_, index) => (index + 2) / 2);
 
@@ -534,7 +534,8 @@ function App() {
         <AlertCircle size={20} aria-hidden="true" />
         <p>
           Final exam covers the whole course, including midterm material. Quiz 2 is worth
-          8 points; the other quizzes are worth 7 points.
+          8 points, quiz 9 is worth 9 points, and the other quizzes are worth 7
+          points.
         </p>
       </section>
     </main>
